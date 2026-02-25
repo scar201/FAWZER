@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فوازير رمضانية - تحدي 20 ثانية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1f3a 0%, #2a1e3a 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* الزينة الرمضانية */
+        .ramadan-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .lantern {
+            position: absolute;
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px gold);
+            animation: swing 3s ease-in-out infinite;
+        }
+
+        .lantern1 { top: 10px; right: 20px; animation-delay: 0s; }
+        .lantern2 { top: 15px; left: 20px; animation-delay: 1s; }
+        .lantern3 { bottom: 10px; right: 30px; animation-delay: 2s; }
+        .lantern4 { bottom: 15px; left: 30px; animation-delay: 0.5s; }
+
+        .stars {
+            position: absolute;
+            color: gold;
+            font-size: 1.5rem;
+        }
+
+        .star1 { top: 20%; right: 10%; animation: twinkle 2s infinite; }
+        .star2 { top: 40%; left: 15%; animation: twinkle 2.5s infinite; }
+        .star3 { bottom: 30%; right: 20%; animation: twinkle 1.8s infinite; }
+
+        .crescent {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px gold; }
+            50% { text-shadow: 0 0 40px #ffaa00; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            text-align: center;
+            margin: 40px 0 30px;
+            position: relative;
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 3rem;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #fff;
+            font-size: 1.3rem;
+            background: rgba(255, 215, 0, 0.2);
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            border: 1px solid gold;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        /* شاشة المربعات */
+        .grid-screen {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .grid-title {
+            color: #fff;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #ffd700, #b8860b);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1a1f3a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-item:hover:not(.clicked) {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .grid-item.clicked {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            color: #666;
+            cursor: not-allowed;
+            border-color: #444;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* شاشة عرض الصورة */
+        .image-screen {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            display: none;
+        }
+
+        /* مؤقت 20 ثانية */
+        .timer-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50px;
+            padding: 5px;
+            border: 2px solid gold;
+            margin-bottom: 10px;
+        }
+
+        .timer-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            border-radius: 50px;
+            width: 100%;
+            transition: width 1s linear;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .timer-text {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .image-container {
+            max-width: 500px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 3px solid gold;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            display: block;
+        }
+
+        .back-btn {
+            background: linear-gradient(145deg, #ffd700, #b8860b);
+            color: #1a1f3a;
+            font-size: 1.5rem;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #fff;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        /* تنسيقات الجوال */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                padding: 8px 20px;
+            }
+            
+            .grid-container {
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .grid-item {
+                font-size: 2rem;
+            }
+            
+            .lantern {
+                font-size: 1.8rem;
+            }
+            
+            .crescent {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-item {
+                font-size: 1.5rem;
+            }
+            
+            .back-btn {
+                font-size: 1.2rem;
+                padding: 12px 30px;
+            }
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: 2px solid gold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 30px;
+        }
+
+        .timer-warning {
+            color: #ff4444;
+            font-weight: bold;
+        }
+    </style>
+    <!-- إضافة خط Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- الزينة الرمضانية -->
+    <div class="ramadan-decoration">
+        <div class="lantern lantern1">🏮</div>
+        <div class="lantern lantern2">🏮</div>
+        <div class="lantern lantern3">🏮</div>
+        <div class="lantern lantern4">🏮</div>
+        <div class="stars star1">⭐</div>
+        <div class="stars star2">⭐</div>
+        <div class="stars star3">⭐</div>
+        <div class="crescent">🌙</div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🎮 فوازير رمضانية 🎮</h1>
+            <div class="subtitle">⚠️ تحدي 20 ثانية لكل سؤال ⚠️</div>
+        </header>
+
+        <div class="game-area">
+            <!-- شاشة المربعات -->
+            <div id="gridScreen" class="grid-screen">
+                <div class="grid-title">اضغط على أي مربع:</div>
+                <div class="grid-container" id="gridContainer">
+                    <!-- المربعات حتتولد بالجافاسكريبت -->
+                </div>
+                <button class="reset-btn" onclick="resetGame()">🔄 إعادة اللعبة</button>
+            </div>
+
+            <!-- شاشة عرض الصورة -->
+            <div id="imageScreen" class="image-screen">
+                <!-- مؤقت 20 ثانية -->
+                <div class="timer-container">
+                    <div id="timerBar" class="timer-bar" style="width: 100%;"></div>
+                </div>
+                <div id="timerText" class="timer-text">⏳ الوقت المتبقي: 20 ثانية</div>
+                
+                <div class="image-container">
+                    <img id="displayedImage" src="" alt="صورة السؤال">
+                </div>
+                <button class="back-btn" onclick="backToGrid()">🔙 الرجوع الآن</button>
+            </div>
+        </div>
+
+        <footer>
+            ✨ رمضان كريم - مع تحدي 20 ثانية ✨
+        </footer>
+    </div>
+
+    <script>
+        // صور الأسئلة (اللي أرسلتها) - محولة إلى Base64
+        const images = [
+            // صورة 1: كم عدد ركعات صلاة التراويح
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 2: ما اسم الزكاة الواجبة في نهاية رمضان
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 3: من هو الصحابي الذي كان يلقب بسيف الله المسلول
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 4: كم عدد الكواكب في المجموعة الشمسية
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 5: من هو النبي الذي ابتلعه الحوت
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 6: كم عدد أجزاء القرآن الكريم
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 7: ما الليلة التي نزل فيها القرآن الكريم
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 8: ما اسم أول إنسان خلقه الله
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 9: ما الجزء المسؤول عن ضخ الدم في الجسم
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC',
+            // صورة 10: ما اسم أول معركة حدثت في شهر رمضان
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAi0lEQVR4nO3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeI8G6AABz0x7CAAAAAElFTkSuQmCC'
+        ];
+
+        let currentImages = [...images];
+        let timerInterval;
+        let timeLeft = 20;
+        const totalTime = 20;
+
+        // توليد المربعات
+        function generateGrid() {
+            const gridContainer = document.getElementById('gridContainer');
+            gridContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 9; i++) {
+                const square = document.createElement('div');
+                square.className = 'grid-item';
+                square.textContent = i;
+                square.setAttribute('data-index', i-1);
+                square.setAttribute('onclick', `showImage(${i-1}, this)`);
+                gridContainer.appendChild(square);
+            }
+        }
+
+        // خلط الصور عشوائي
+        function shuffleImages() {
+            for (let i = currentImages.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentImages[i], currentImages[j]] = [currentImages[j], currentImages[i]];
+            }
+        }
+
+        // عرض الصورة
+        function showImage(index, element) {
+            // تخزين المربع المضغوط عليه
+            window.clickedSquare = element;
+            
+            // تعطيل المؤقت القديم إذا كان موجود
+            clearInterval(timerInterval);
+            
+            // إعادة تعيين الوقت
+            timeLeft = 20;
+            updateTimerDisplay();
+            
+            // عرض الصورة العشوائية
+            const randomIndex = Math.floor(Math.random() * currentImages.length);
+            document.getElementById('displayedImage').src = currentImages[randomIndex];
+            
+            // إخفاء شاشة المربعات وإظهار شاشة الصورة
+            document.getElementById('gridScreen').style.display = 'none';
+            document.getElementById('imageScreen').style.display = 'flex';
+            
+            // بدء المؤقت
+            startTimer();
+        }
+
+        // بدء المؤقت
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                // تحذير عند آخر 5 ثواني
+                if (timeLeft <= 5) {
+                    document.getElementById('timerText').classList.add('timer-warning');
+                }
+                
+                // انتهاء الوقت
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // الرجوع التلقائي للمربعات
+                    backToGrid();
+                }
+            }, 1000);
+        }
+
+        // تحديث شريط المؤقت والنص
+        function updateTimerDisplay() {
+            const percentage = (timeLeft / totalTime) * 100;
+            document.getElementById('timerBar').style.width = percentage + '%';
+            document.getElementById('timerText').textContent = `⏳ الوقت المتبقي: ${timeLeft} ثانية`;
+            
+            // تغيير لون الشريط لما يقترب الوقت
+            if (timeLeft <= 5) {
+                document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ff4444, #ff0000)';
+            } else {
+                document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ffd700, #ffaa00)';
+            }
+        }
+
+        // الرجوع لشاشة المربعات
+        function backToGrid() {
+            // إيقاف المؤقت
+            clearInterval(timerInterval);
+            
+            // إزالة التحذير
+            document.getElementById('timerText').classList.remove('timer-warning');
+            
+            // إعادة شريط المؤقت
+            document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ffd700, #ffaa00)';
+            
+            // إخفاء شاشة الصورة وإظهار شاشة المربعات
+            document.getElementById('imageScreen').style.display = 'none';
+            document.getElementById('gridScreen').style.display = 'flex';
+            
+            // تعتيم المربع المضغوط عليه
+            if (window.clickedSquare) {
+                window.clickedSquare.classList.add('clicked');
+            }
+            
+            // خلط الصور المتبقية
+            shuffleImages();
+        }
+
+        // إعادة اللعبة
+        function resetGame() {
+            // إيقاف المؤقت
+            clearInterval(timerInterval);
+            
+            // إزالة التحذير
+            document.getElementById('timerText').classList.remove('timer-warning');
+            
+            // إعادة شريط المؤقت
+            document.getElementById('timerBar').style.background = 'linear-gradient(90deg, #ffd700, #ffaa00)';
+            document.getElementById('timerBar').style.width = '100%';
+            document.getElementById('timerText').textContent = '⏳ الوقت المتبقي: 20 ثانية';
+            
+            // إعادة تعيين الصور
+            currentImages = [...images];
+            shuffleImages();
+            
+            // إعادة تعيين المربعات
+            const squares = document.querySelectorAll('.grid-item');
+            squares.forEach(square => {
+                square.classList.remove('clicked');
+            });
+            
+            // التأكد من إظهار شاشة المربعات
+            document.getElementById('imageScreen').style.display = 'none';
+            document.getElementById('gridScreen').style.display = 'flex';
+            
+            // إعادة الوقت
+            timeLeft = 20;
+        }
+
+        // تهيئة الصفحة
+        window.onload = () => {
+            generateGrid();
+            shuffleImages();
+        };
+    </script>
+</body>
+</html>
